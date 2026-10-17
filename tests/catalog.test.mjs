@@ -1,0 +1,10 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync,existsSync } from 'node:fs';
+const products=JSON.parse(readFileSync('src/data/catalog.json','utf-8'));
+const categories=['Kriya','Fesyen','Kuliner','Musik','Seni Pertunjukan','Seni Rupa','Fotografi','Aplikasi & Game'];
+test('at least 10 products in each of 8 EKRAF categories',()=>{for(const c of categories) assert.ok(products.filter(p=>p.subsector===c).length>=10,c);});
+test('144 unique product ids and image paths',()=>{assert.equal(products.length,144);assert.equal(new Set(products.map(p=>p.id)).size,144);assert.equal(new Set(products.map(p=>p.image)).size,144)});
+test('every product includes a locally bundled SVG image',()=>{for(const p of products)assert.ok(existsSync('public'+p.image),p.image)});
+test('all prices and stock are nonnegative numbers',()=>{for(const p of products){assert.ok(Number.isFinite(p.price)&&p.price>=0);assert.ok(Number.isInteger(p.stock)&&p.stock>=0)}});
+test('sample items are transparently marked as demo',()=>{assert.ok(products.every(p=>p.isDemo===true));});
